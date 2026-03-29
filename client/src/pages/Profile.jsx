@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { RoleBadge } from '../components/RoleBadge';
-import { useSpicy, KINKS } from '../context/SpicyContext';
+import { useSpicy, KINK_GROUPS } from '../context/SpicyContext';
 import { SpicyUnlockModal } from '../components/SpicyUnlockModal';
 
 const PROFILE_TYPES = [
@@ -15,6 +15,123 @@ const PROFILE_TYPES = [
 function fmtDate(d) {
   if (!d) return '';
   return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function KinksPanel({ myKinks, toggleKink, spicyMode, spicyUnlocked, onUnlock }) {
+  const [open, setOpen] = useState({});
+
+  function toggleGroup(id) {
+    setOpen(o => ({ ...o, [id]: !o[id] }));
+  }
+
+  const totalSelected = myKinks.length;
+
+  return (
+    <div className="space-y-3">
+      {/* Header info */}
+      <div className="rounded-2xl p-4 border" style={{ background: 'var(--skin-fill)', borderColor: 'var(--skin-border)' }}>
+        <p className="text-sm font-semibold mb-1" style={{ color: 'var(--skin-text)' }}>🌶️ Your Private Preferences</p>
+        <p className="text-xs" style={{ color: 'var(--skin-muted)' }}>
+          Only visible to users with Spicy Mode active. Tap a category to expand, then pick what you're into.
+        </p>
+        {totalSelected > 0 && (
+          <p className="text-xs font-semibold mt-2" style={{ color: 'var(--skin-accent)' }}>
+            {totalSelected} selected · saved automatically
+          </p>
+        )}
+      </div>
+
+      {/* Category collapse cards */}
+      {KINK_GROUPS.map(group => {
+        const groupSelected = group.kinks.filter(k => myKinks.includes(k));
+        const isOpen = !!open[group.id];
+
+        return (
+          <div key={group.id} className="rounded-2xl border overflow-hidden"
+            style={{ borderColor: groupSelected.length > 0 ? 'var(--skin-accent)' : 'var(--skin-border)', background: 'var(--skin-fill)' }}>
+
+            {/* Collapse header */}
+            <button
+              type="button"
+              onClick={() => toggleGroup(group.id)}
+              className="w-full px-4 py-3 flex items-center gap-3 text-left transition-opacity hover:opacity-80"
+            >
+              <span className="text-xl">{group.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <span className="font-semibold text-sm" style={{ color: 'var(--skin-text)' }}>
+                  {group.label}
+                </span>
+                {groupSelected.length > 0 && (
+                  <span className="ml-2 text-xs font-bold px-1.5 py-0.5 rounded-full"
+                    style={{ background: spicyMode ? 'rgba(127,29,29,0.6)' : 'rgba(244,63,94,0.15)', color: 'var(--skin-accent)' }}>
+                    {groupSelected.length}/{group.kinks.length}
+                  </span>
+                )}
+              </div>
+              {/* Selected pills preview when collapsed */}
+              {!isOpen && groupSelected.length > 0 && (
+                <div className="hidden sm:flex flex-wrap gap-1 max-w-[140px] overflow-hidden">
+                  {groupSelected.slice(0, 2).map(k => (
+                    <span key={k} className="text-xs px-2 py-0.5 rounded-full font-medium truncate max-w-[68px]"
+                      style={{ background: spicyMode ? 'rgba(127,29,29,0.5)' : 'rgba(244,63,94,0.12)', color: 'var(--skin-accent)' }}>
+                      {k}
+                    </span>
+                  ))}
+                  {groupSelected.length > 2 && (
+                    <span className="text-xs" style={{ color: 'var(--skin-muted)' }}>+{groupSelected.length - 2}</span>
+                  )}
+                </div>
+              )}
+              <svg
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                className="w-4 h-4 flex-shrink-0 transition-transform"
+                style={{ color: 'var(--skin-muted)', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Kink pills */}
+            {isOpen && (
+              <div className="px-4 pb-4 pt-1 border-t flex flex-wrap gap-2"
+                style={{ borderColor: 'var(--skin-border)' }}>
+                {group.kinks.map(k => {
+                  const active = myKinks.includes(k);
+                  return (
+                    <button key={k} type="button" onClick={() => toggleKink(k)}
+                      className="px-3 py-1.5 rounded-full text-sm font-medium border transition-all"
+                      style={{
+                        borderColor: active ? 'var(--skin-accent)' : 'var(--skin-border)',
+                        background: active
+                          ? spicyMode ? 'rgba(127,29,29,0.55)' : 'rgba(244,63,94,0.13)'
+                          : 'var(--skin-fill-2)',
+                        color: active ? 'var(--skin-accent)' : 'var(--skin-muted)',
+                        fontWeight: active ? 600 : 400,
+                      }}>
+                      {active ? '🌶️ ' : ''}{k}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Unlock nudge for non-spicy users */}
+      {!spicyUnlocked && (
+        <div className="rounded-2xl p-4 border text-center"
+          style={{ background: 'rgba(127,29,29,0.12)', borderColor: 'rgba(127,29,29,0.35)' }}>
+          <p className="text-sm font-semibold mb-2" style={{ color: '#fca5a5' }}>
+            🌶️ Unlock Spicy Mode to see others' kinks in discovery
+          </p>
+          <button onClick={onUnlock} className="btn-primary px-6 py-2 rounded-xl text-sm">
+            Unlock Spicy Mode
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function Profile() {
@@ -171,51 +288,13 @@ export function Profile() {
 
       {/* Kinks tab */}
       {tab === 'kinks' && (
-        <div className="space-y-4">
-          <div className="rounded-2xl p-4 border" style={{ background: 'var(--skin-fill)', borderColor: 'var(--skin-border)' }}>
-            <p className="text-sm font-semibold mb-1" style={{ color: 'var(--skin-text)' }}>🌶️ Your Private Preferences</p>
-            <p className="text-xs" style={{ color: 'var(--skin-muted)' }}>
-              These are only visible to users who have Spicy Mode active. Select what you're into.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {KINKS.map(k => {
-              const active = myKinks.includes(k);
-              return (
-                <button key={k} type="button" onClick={() => toggleKink(k)}
-                  className="px-3 py-1.5 rounded-full text-sm font-semibold border-2 transition-all"
-                  style={{
-                    borderColor: active ? 'var(--skin-accent)' : 'var(--skin-border)',
-                    background: active
-                      ? spicyMode ? 'rgba(127,29,29,0.5)' : 'rgba(244,63,94,0.12)'
-                      : 'var(--skin-fill)',
-                    color: active ? 'var(--skin-accent)' : 'var(--skin-muted)',
-                  }}>
-                  {active ? '🌶️ ' : ''}{k}
-                </button>
-              );
-            })}
-          </div>
-
-          {myKinks.length > 0 && (
-            <p className="text-xs text-center" style={{ color: 'var(--skin-muted)' }}>
-              {myKinks.length} selected · changes save automatically
-            </p>
-          )}
-
-          {!spicyUnlocked && (
-            <div className="rounded-2xl p-4 border text-center"
-              style={{ background: 'rgba(127,29,29,0.15)', borderColor: 'rgba(127,29,29,0.4)' }}>
-              <p className="text-sm font-semibold mb-2" style={{ color: '#fca5a5' }}>
-                🌶️ Unlock Spicy Mode to see others' kinks
-              </p>
-              <button onClick={() => setShowUnlock(true)} className="btn-primary px-6 py-2 rounded-xl text-sm">
-                Unlock Spicy Mode
-              </button>
-            </div>
-          )}
-        </div>
+        <KinksPanel
+          myKinks={myKinks}
+          toggleKink={toggleKink}
+          spicyMode={spicyMode}
+          spicyUnlocked={spicyUnlocked}
+          onUnlock={() => setShowUnlock(true)}
+        />
       )}
 
       {/* Vacations tab */}
