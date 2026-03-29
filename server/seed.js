@@ -10,6 +10,7 @@ const users = [
     bio: "Software engineer who loves hiking, craft coffee, and bad puns. Looking for my partner in crime.",
     photo_url: 'https://i.pravatar.cc/400?u=demo@datez.com',
     profile_type: 'regular', allowance_expectation: 0,
+    kinks: ['Roleplay', 'Outdoors', 'Dominant'],
   },
   // Women profiles
   {
@@ -17,42 +18,49 @@ const users = [
     bio: "Yoga instructor & travel addict. I've visited 30 countries and counting. Let's explore the world together!",
     photo_url: 'https://i.pravatar.cc/400?u=sarah@demo.com',
     profile_type: 'sugar_baby', allowance_expectation: 300,
+    kinks: ['Submission', 'Blindfolds', 'Massage', 'Sensory play'],
   },
   {
     email: 'emma@demo.com', name: 'Emma', age: 29, gender: 'woman', interested_in: 'men',
     bio: "NYC chef by day, amateur photographer by night. I'll cook for you if you make me laugh.",
     photo_url: 'https://i.pravatar.cc/400?u=emma@demo.com',
     profile_type: 'regular', allowance_expectation: 0,
+    kinks: ['Bondage', 'Roleplay', 'Temperature play'],
   },
   {
     email: 'olivia@demo.com', name: 'Olivia', age: 24, gender: 'woman', interested_in: 'everyone',
     bio: "Art grad student. Into gallery openings, farmers markets, and long talks over wine.",
     photo_url: 'https://i.pravatar.cc/400?u=olivia@demo.com',
     profile_type: 'sugar_baby', allowance_expectation: 500,
+    kinks: ['Exhibitionism', 'Voyeurism', 'Costumes', 'Power exchange'],
   },
   {
     email: 'ava@demo.com', name: 'Ava', age: 31, gender: 'woman', interested_in: 'men',
     bio: "Marketing director, fitness lover. I work hard and play harder. Brunch every Sunday is non-negotiable.",
     photo_url: 'https://i.pravatar.cc/400?u=ava@demo.com',
     profile_type: 'regular', allowance_expectation: 0,
+    kinks: ['Dominant', 'Impact play', 'Leather'],
   },
   {
     email: 'mia@demo.com', name: 'Mia', age: 27, gender: 'woman', interested_in: 'men',
     bio: "Nurse with a dark sense of humor. Obsessed with true crime podcasts and rescue dogs.",
     photo_url: 'https://i.pravatar.cc/400?u=mia@demo.com',
     profile_type: 'sugar_baby', allowance_expectation: 200,
+    kinks: ['Sensory play', 'Massage', 'Blindfolds', 'Wax play'],
   },
   {
     email: 'isabella@demo.com', name: 'Isabella', age: 25, gender: 'woman', interested_in: 'men',
     bio: "Aspiring novelist. I'll write you a character based on your worst habits.",
     photo_url: 'https://i.pravatar.cc/400?u=isabella@demo.com',
     profile_type: 'regular', allowance_expectation: 0,
+    kinks: ['Roleplay', 'Pet play', 'Submission'],
   },
   {
     email: 'charlotte@demo.com', name: 'Charlotte', age: 33, gender: 'woman', interested_in: 'men',
     bio: "Attorney. I argue for a living so family dinners are never boring. Looking for someone who keeps up.",
     photo_url: 'https://i.pravatar.cc/400?u=charlotte@demo.com',
     profile_type: 'sugar_mommy', allowance_expectation: 0,
+    kinks: ['Dominant', 'Power exchange', 'Lingerie'],
   },
   // Men profiles
   {
@@ -60,30 +68,35 @@ const users = [
     bio: "Architect who designs buildings by day, builds furniture by night. Big fan of tacos and terrible movies.",
     photo_url: 'https://i.pravatar.cc/400?u=liam@demo.com',
     profile_type: 'regular', allowance_expectation: 0,
+    kinks: ['Outdoors', 'Roleplay', 'Impact play'],
   },
   {
     email: 'noah@demo.com', name: 'Noah', age: 35, gender: 'man', interested_in: 'women',
     bio: "VC partner, amateur golfer, full-time foodie. I travel for work but always come back with good stories.",
     photo_url: 'https://i.pravatar.cc/400?u=noah@demo.com',
     profile_type: 'sugar_daddy', allowance_expectation: 0,
+    kinks: ['Dominant', 'Voyeurism', 'Leather'],
   },
   {
     email: 'ethan@demo.com', name: 'Ethan', age: 28, gender: 'man', interested_in: 'women',
     bio: "Marine biologist. I study the ocean and occasionally surface for coffee and human contact.",
     photo_url: 'https://i.pravatar.cc/400?u=ethan@demo.com',
     profile_type: 'regular', allowance_expectation: 0,
+    kinks: ['Sensory play', 'Outdoors', 'Submission'],
   },
   {
     email: 'james@demo.com', name: 'James', age: 38, gender: 'man', interested_in: 'women',
     bio: "Tech founder. Building the future one startup at a time. Looking for someone grounded to keep me sane.",
     photo_url: 'https://i.pravatar.cc/400?u=james@demo.com',
     profile_type: 'sugar_daddy', allowance_expectation: 0,
+    kinks: ['Power exchange', 'Dominant', 'Exhibitionism'],
   },
   {
     email: 'oliver@demo.com', name: 'Oliver', age: 27, gender: 'man', interested_in: 'everyone',
     bio: "Music producer and terrible cook. I'll feed you studio sessions if you handle the meals.",
     photo_url: 'https://i.pravatar.cc/400?u=oliver@demo.com',
     profile_type: 'regular', allowance_expectation: 0,
+    kinks: ['Roleplay', 'Costumes', 'Edge play'],
   },
 ];
 
@@ -93,13 +106,16 @@ console.log('Seeding database...');
 db.exec('DELETE FROM tips; DELETE FROM messages; DELETE FROM matches; DELETE FROM swipes; DELETE FROM vacations; DELETE FROM users;');
 
 const insertUser = db.prepare(`
-  INSERT INTO users (email, password_hash, name, age, gender, interested_in, bio, photo_url, profile_type, allowance_expectation, is_setup_complete)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+  INSERT INTO users (email, password_hash, name, age, gender, interested_in, bio, photo_url, profile_type, allowance_expectation, kinks, is_setup_complete)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
 `);
 
 const ids = {};
 for (const u of users) {
-  const { lastInsertRowid } = insertUser.run(u.email, HASH, u.name, u.age, u.gender, u.interested_in, u.bio, u.photo_url, u.profile_type, u.allowance_expectation);
+  const { lastInsertRowid } = insertUser.run(
+    u.email, HASH, u.name, u.age, u.gender, u.interested_in, u.bio, u.photo_url,
+    u.profile_type, u.allowance_expectation, JSON.stringify(u.kinks || [])
+  );
   ids[u.email] = lastInsertRowid;
 }
 

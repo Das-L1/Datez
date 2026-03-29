@@ -6,7 +6,7 @@ const { requireAuth, JWT_SECRET } = require('../middleware/auth');
 
 const router = express.Router();
 
-const PUBLIC_FIELDS = 'id, email, name, age, bio, gender, interested_in, photo_url, profile_type, allowance_expectation, is_setup_complete';
+const PUBLIC_FIELDS = 'id, email, name, age, bio, gender, interested_in, photo_url, profile_type, allowance_expectation, kinks, spica_unlocked, spica_likes, is_setup_complete';
 
 router.post('/register', async (req, res) => {
   const { email, password, name } = req.body;
@@ -39,7 +39,7 @@ router.post('/login', async (req, res) => {
 router.get('/me', requireAuth, (req, res) => {
   const user = db.prepare(`SELECT ${PUBLIC_FIELDS} FROM users WHERE id = ?`).get(req.userId);
   if (!user) return res.status(404).json({ error: 'Not found' });
-  res.json(user);
+  res.json({ ...user, kinks: JSON.parse(user.kinks || '[]') });
 });
 
 module.exports = router;

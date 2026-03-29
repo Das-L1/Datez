@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SpicyProvider } from './context/SpicyContext';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { SetupProfile } from './pages/SetupProfile';
@@ -14,8 +15,8 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--skin-bg)' }}>
+        <div className="w-10 h-10 border-4 border-[var(--skin-accent)] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -40,7 +41,7 @@ function AppRoutes() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen max-w-md mx-auto">
+    <div className="flex flex-col min-h-screen max-w-md mx-auto" style={{ background: 'var(--skin-bg)' }}>
       <div className="flex-1 pb-20">
         <Routes>
           <Route path="/" element={<Navigate to="/discover" replace />} />
@@ -60,7 +61,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <SpicyProvider>
+          <AppRoutes />
+        </SpicyProvider>
       </AuthProvider>
     </BrowserRouter>
   );

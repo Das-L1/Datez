@@ -2,17 +2,99 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-slate-50 text-slate-800 antialiased;
-  }
+/* ── Normal mode (default) ─────────────────────────────── */
+:root {
+  --skin-bg:         #f8fafc;
+  --skin-fill:       #ffffff;
+  --skin-fill-2:     #f1f5f9;
+  --skin-border:     #e2e8f0;
+  --skin-text:       #1e293b;
+  --skin-muted:      #64748b;
+  --skin-accent:     #f43f5e;
+  --skin-input:      #ffffff;
+  --skin-input-ring: rgba(244, 63, 94, 0.35);
+  --skin-nav:        #ffffff;
+  --skin-nav-border: #e2e8f0;
+  --skin-nav-active: #f43f5e;
+  --skin-nav-inactive: #94a3b8;
+
+  --skin-btn-from:   #f43f5e;
+  --skin-btn-to:     #9333ea;
+  --skin-page-from:  #fff1f2;
+  --skin-page-to:    #faf5ff;
+  --skin-heading-from: #f43f5e;
+  --skin-heading-to:   #9333ea;
 }
 
+/* ── Spicy mode ─────────────────────────────────────────── */
+.spicy {
+  --skin-bg:         #080000;
+  --skin-fill:       #160000;
+  --skin-fill-2:     #200000;
+  --skin-border:     #3d0404;
+  --skin-text:       #fecaca;
+  --skin-muted:      #fca5a5;
+  --skin-accent:     #ef4444;
+  --skin-input:      #1c0000;
+  --skin-input-ring: rgba(239, 68, 68, 0.4);
+  --skin-nav:        #100000;
+  --skin-nav-border: #3d0404;
+  --skin-nav-active: #ef4444;
+  --skin-nav-inactive: #7f1d1d;
+
+  --skin-btn-from:   #7f1d1d;
+  --skin-btn-to:     #3b0f0f;
+  --skin-page-from:  #120000;
+  --skin-page-to:    #060000;
+  --skin-heading-from: #ef4444;
+  --skin-heading-to:   #dc2626;
+}
+
+/* ── Utility classes that use CSS variables ─────────────── */
 @layer utilities {
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    background: linear-gradient(135deg, var(--skin-btn-from), var(--skin-btn-to));
+    @apply text-white font-bold shadow-lg transition-shadow hover:shadow-xl disabled:opacity-60;
+  }
+
+  .btn-secondary {
+    background-color: var(--skin-fill-2);
+    color: var(--skin-text);
+    @apply font-semibold transition-colors;
+  }
+  .btn-secondary:hover {
+    filter: brightness(0.93);
+  }
+
+  .surface {
+    background-color: var(--skin-fill);
+    border-color: var(--skin-border);
+  }
+
+  .input-base {
+    background-color: var(--skin-input);
+    border-color: var(--skin-border);
+    color: var(--skin-text);
+  }
+  .input-base::placeholder { color: var(--skin-muted); }
+  .input-base:focus { outline: none; box-shadow: 0 0 0 3px var(--skin-input-ring); border-color: var(--skin-accent); }
+
+  .heading-gradient {
+    background: linear-gradient(135deg, var(--skin-heading-from), var(--skin-heading-to));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .page-gradient {
+    background: linear-gradient(135deg, var(--skin-page-from), var(--skin-page-to));
   }
 }

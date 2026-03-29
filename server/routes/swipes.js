@@ -6,13 +6,14 @@ const router = express.Router();
 
 // Discover users to swipe on
 router.get('/discover', requireAuth, (req, res) => {
-  const me = db.prepare('SELECT gender, interested_in FROM users WHERE id = ?').get(req.userId);
+  const me = db.prepare('SELECT gender, interested_in, spica_unlocked FROM users WHERE id = ?').get(req.userId);
   const swiped = db.prepare('SELECT swiped_id FROM swipes WHERE swiper_id = ?').all(req.userId).map(r => r.swiped_id);
   swiped.push(req.userId);
   const placeholders = swiped.map(() => '?').join(',');
 
   let query = `
     SELECT u.id, u.name, u.age, u.bio, u.photo_url, u.profile_type, u.allowance_expectation,
+           u.kinks,
            (SELECT COUNT(*) FROM tips WHERE receiver_id = u.id) as tip_count,
            (SELECT COALESCE(SUM(amount),0) FROM tips WHERE receiver_id = u.id) as tips_total
     FROM users u
@@ -29,15 +30,18 @@ router.get('/discover', requireAuth, (req, res) => {
 
   const users = db.prepare(query).all(...params);
 
-  // Attach upcoming vacations to each user
-  const withVacations = users.map(u => {
+  // Attach upcoming vacations + parse kinks for each user
+  const withExtras = users.map(u => {
     const vacations = db.prepare(
       'SELECT location, start_date, end_date FROM vacations WHERE user_id = ? AND end_date >= date("now") ORDER BY start_date LIMIT 3'
     ).all(u.id);
-    return { ...u, vacations };
+    // Only expose kinks to users with Spica unlocked
+    const kinks = me?.spica_unlocked ? JSON.parse(u.kinks || '[]') : [];
+    const { kinks: _raw, ...rest } = u;
+    return { ...rest, kinks, vacations };
   });
 
-  res.json(withVacations);
+  res.json(withExtras);
 });
 
 // Record a swipe

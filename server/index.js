@@ -11,6 +11,7 @@ app.use('/api/profiles', require('./routes/profiles'));
 app.use('/api/swipes', require('./routes/swipes'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/vacations', require('./routes/vacations'));
+app.use('/api/spica', require('./routes/spica'));
 
 if (process.env.NODE_ENV === 'production') {
   const dist = path.join(__dirname, '../client/dist');

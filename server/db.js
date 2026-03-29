@@ -79,4 +79,14 @@ db.exec(`
   );
 `);
 
+// Safe migrations for new columns
+const migrations = [
+  "ALTER TABLE users ADD COLUMN kinks TEXT NOT NULL DEFAULT '[]'",
+  "ALTER TABLE users ADD COLUMN spica_unlocked INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN spica_likes INTEGER NOT NULL DEFAULT 0",
+];
+for (const sql of migrations) {
+  try { db.exec(sql); } catch { /* column already exists */ }
+}
+
 module.exports = db;
