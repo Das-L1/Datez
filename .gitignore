@@ -1,0 +1,9 @@
+node_modules/
+server/node_modules/
+client/node_modules/
+client/dist/
+server/datez.db
+server/datez.db-shm
+server/datez.db-wal
+.env
+*.local
