@@ -8,6 +8,7 @@ import { Discover } from './pages/Discover';
 import { Matches } from './pages/Matches';
 import { Chat } from './pages/Chat';
 import { Profile } from './pages/Profile';
+import { Admirers } from './pages/Admirers';
 import { Navbar } from './components/Navbar';
 
 function AppRoutes() {
@@ -48,6 +49,7 @@ function AppRoutes() {
           <Route path="/discover" element={<Discover />} />
           <Route path="/matches" element={<Matches />} />
           <Route path="/chat/:matchId" element={<Chat />} />
+          <Route path="/admirers" element={<Admirers />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<Navigate to="/discover" replace />} />
         </Routes>

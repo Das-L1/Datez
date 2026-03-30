@@ -12,6 +12,9 @@ app.use('/api/swipes', require('./routes/swipes'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/vacations', require('./routes/vacations'));
 app.use('/api/spica', require('./routes/spica'));
+app.use('/api/points', require('./routes/points'));
+app.use('/api/admirers', require('./routes/admirers'));
+app.use('/api/icebreakers', require('./routes/icebreakers'));
 
 if (process.env.NODE_ENV === 'production') {
   const dist = path.join(__dirname, '../client/dist');

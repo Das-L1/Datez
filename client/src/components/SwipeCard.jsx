@@ -4,6 +4,12 @@ import { useSpicy } from '../context/SpicyContext';
 
 const THRESHOLD = 90;
 
+const MOOD_MAP = {
+  hot: '🔥', adventurous: '😈', lowkey: '☕', travel: '✈️',
+  party: '🎉', company: '💆', secret: '🤫', busy: '💼',
+  night: '🌙', slow: '🌿',
+};
+
 export function SwipeCard({ user, onSwipe, stackIndex }) {
   const [drag, setDrag] = useState({ x: 0, y: 0, active: false });
   const start = useRef({ x: 0, y: 0 });
@@ -99,6 +105,15 @@ export function SwipeCard({ user, onSwipe, stackIndex }) {
           </div>
         )}
 
+        {/* Active now badge */}
+        {user.active_now && (
+          <div className="absolute top-4 right-4 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-white"
+            style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}>
+            <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
+            Active now
+          </div>
+        )}
+
         {/* Info overlay */}
         <div
           className="absolute inset-x-0 bottom-0 px-5 pt-16 pb-5 text-white"
@@ -110,16 +125,29 @@ export function SwipeCard({ user, onSwipe, stackIndex }) {
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             <h2 className="text-2xl font-bold">{user.name}, {user.age}</h2>
             <RoleBadge type={user.profile_type} allowance={user.allowance_expectation} />
+            {user.mood && <span className="text-lg">{MOOD_MAP[user.mood] ?? '✨'}</span>}
+            {user.constellation_type === 'couple' && (
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-white/20">♾️ Couple</span>
+            )}
+            {user.constellation_type === 'poly' && (
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-white/20">🌐 Poly</span>
+            )}
           </div>
           {user.bio && <p className="text-sm opacity-90 line-clamp-2">{user.bio}</p>}
 
-          {/* Kinks — only shown in spicy mode */}
-          {spicyMode && user.kinks?.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1">
-              {user.kinks.slice(0, 4).map(k => (
+          {/* Kinks + chemistry — only shown in spicy mode */}
+          {spicyMode && (
+            <div className="mt-2 flex flex-wrap gap-1 items-center">
+              {user.chemistry_score != null && (
+                <span className="text-xs rounded-full px-2.5 py-0.5 font-bold"
+                  style={{ background: 'rgba(220,38,38,0.7)', border: '1px solid rgba(239,68,68,0.6)', color: '#fde68a' }}>
+                  🌶️ {user.chemistry_score}% match
+                </span>
+              )}
+              {user.kinks?.slice(0, 3).map(k => (
                 <span key={k} className="text-xs rounded-full px-2 py-0.5 font-semibold"
                   style={{ background: 'rgba(220,38,38,0.55)', border: '1px solid rgba(239,68,68,0.5)', color: '#fecaca' }}>
-                  🌶️ {k}
+                  {k}
                 </span>
               ))}
             </div>

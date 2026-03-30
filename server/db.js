@@ -84,9 +84,33 @@ const migrations = [
   "ALTER TABLE users ADD COLUMN kinks TEXT NOT NULL DEFAULT '[]'",
   "ALTER TABLE users ADD COLUMN spica_unlocked INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN spica_likes INTEGER NOT NULL DEFAULT 0",
+  // Points & engagement
+  "ALTER TABLE users ADD COLUMN points INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN last_active_date TEXT",
+  "ALTER TABLE users ADD COLUMN daily_msg_points INTEGER NOT NULL DEFAULT 0",
+  // Mood
+  "ALTER TABLE users ADD COLUMN mood TEXT",
+  // Off the Clock
+  "ALTER TABLE users ADD COLUMN available_days TEXT",
+  "ALTER TABLE users ADD COLUMN available_from INTEGER",
+  "ALTER TABLE users ADD COLUMN available_to INTEGER",
+  // Constellation
+  "ALTER TABLE users ADD COLUMN constellation_type TEXT",
+  "ALTER TABLE users ADD COLUMN partner_display TEXT",
+  "ALTER TABLE users ADD COLUMN seeking_desc TEXT",
+  // New tables (CREATE IF NOT EXISTS won't fail)
+  `CREATE TABLE IF NOT EXISTS admirer_reveals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    revealed_id INTEGER NOT NULL,
+    method TEXT NOT NULL CHECK(method IN ('ad','points')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(revealed_id) REFERENCES users(id)
+  )`,
 ];
 for (const sql of migrations) {
-  try { db.exec(sql); } catch { /* column already exists */ }
+  try { db.exec(sql); } catch { /* already exists */ }
 }
 
 module.exports = db;

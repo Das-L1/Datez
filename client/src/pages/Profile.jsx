@@ -12,6 +12,35 @@ const PROFILE_TYPES = [
   { value: 'sugar_baby',  label: 'Sugar Baby',   emoji: '🍭' },
 ];
 
+const MOODS = [
+  { value: 'hot',         label: 'In the mood',    emoji: '🔥' },
+  { value: 'adventurous', label: 'Adventurous',    emoji: '😈' },
+  { value: 'lowkey',      label: 'Low-key',        emoji: '☕' },
+  { value: 'travel',      label: 'Travelling',     emoji: '✈️' },
+  { value: 'party',       label: 'Party mode',     emoji: '🎉' },
+  { value: 'company',     label: 'Want company',   emoji: '💆' },
+  { value: 'secret',      label: 'Hush hush',      emoji: '🤫' },
+  { value: 'busy',        label: 'Busy',           emoji: '💼' },
+  { value: 'night',       label: 'Night owl',      emoji: '🌙' },
+  { value: 'slow',        label: 'Slow burn',      emoji: '🌿' },
+];
+
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+const CONSTELLATION_TYPES = [
+  { value: '',      label: 'Solo',   emoji: '🧍' },
+  { value: 'couple', label: 'Couple', emoji: '♾️' },
+  { value: 'poly',   label: 'Poly',   emoji: '🌐' },
+];
+
+function fmtHour(h) {
+  if (h == null || h === '') return '';
+  const hh = parseInt(h);
+  const ampm = hh >= 12 ? 'PM' : 'AM';
+  const display = hh % 12 || 12;
+  return `${display}${ampm}`;
+}
+
 function fmtDate(d) {
   if (!d) return '';
   return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -279,6 +308,109 @@ export function Profile() {
                 className="input-base w-full px-4 py-3 rounded-2xl border transition" />
             </div>
           )}
+
+          {/* Mood Status */}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wide block mb-2" style={{ color: 'var(--skin-muted)' }}>
+              Mood Status
+            </label>
+            <div className="grid grid-cols-5 gap-2">
+              {MOODS.map(({ value, label, emoji }) => (
+                <button key={value} type="button" onClick={() => set('mood', form.mood === value ? null : value)}
+                  className="flex flex-col items-center gap-1 py-2 rounded-2xl border-2 transition-all"
+                  style={{
+                    borderColor: form.mood === value ? 'var(--skin-accent)' : 'var(--skin-border)',
+                    background: form.mood === value ? 'rgba(244,63,94,0.08)' : 'var(--skin-fill)',
+                  }}
+                  title={label}>
+                  <span className="text-xl">{emoji}</span>
+                  <span className="text-[10px] leading-tight text-center" style={{ color: form.mood === value ? 'var(--skin-accent)' : 'var(--skin-muted)' }}>
+                    {label.split(' ')[0]}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Off the Clock */}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wide block mb-2" style={{ color: 'var(--skin-muted)' }}>
+              ⏰ Off the Clock — Available Hours
+            </label>
+            <div className="rounded-2xl border p-4 space-y-3" style={{ background: 'var(--skin-fill)', borderColor: 'var(--skin-border)' }}>
+              <div className="flex flex-wrap gap-2">
+                {DAYS.map(day => {
+                  const days = form.available_days || [];
+                  const on = days.includes(day);
+                  return (
+                    <button key={day} type="button"
+                      onClick={() => set('available_days', on ? days.filter(d => d !== day) : [...days, day])}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold border-2 transition-all"
+                      style={{
+                        borderColor: on ? 'var(--skin-accent)' : 'var(--skin-border)',
+                        background: on ? 'rgba(244,63,94,0.1)' : 'var(--skin-fill-2)',
+                        color: on ? 'var(--skin-accent)' : 'var(--skin-muted)',
+                      }}>
+                      {day}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs block mb-1" style={{ color: 'var(--skin-muted)' }}>From</label>
+                  <select value={form.available_from ?? ''} onChange={e => set('available_from', e.target.value === '' ? null : parseInt(e.target.value))}
+                    className="input-base w-full px-3 py-2 rounded-xl border text-sm">
+                    <option value="">Any time</option>
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>{fmtHour(i)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs block mb-1" style={{ color: 'var(--skin-muted)' }}>To</label>
+                  <select value={form.available_to ?? ''} onChange={e => set('available_to', e.target.value === '' ? null : parseInt(e.target.value))}
+                    className="input-base w-full px-3 py-2 rounded-xl border text-sm">
+                    <option value="">Any time</option>
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>{fmtHour(i)}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Constellation Mode */}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wide block mb-2" style={{ color: 'var(--skin-muted)' }}>
+              Constellation Mode
+            </label>
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {CONSTELLATION_TYPES.map(({ value, label, emoji }) => (
+                <button key={value} type="button" onClick={() => set('constellation_type', value || null)}
+                  className="py-3 rounded-2xl border-2 font-semibold text-sm transition-all flex flex-col items-center gap-1"
+                  style={{
+                    borderColor: (form.constellation_type ?? '') === value ? 'var(--skin-accent)' : 'var(--skin-border)',
+                    background: (form.constellation_type ?? '') === value ? 'rgba(244,63,94,0.08)' : 'var(--skin-fill)',
+                    color: (form.constellation_type ?? '') === value ? 'var(--skin-accent)' : 'var(--skin-text)',
+                  }}>
+                  <span className="text-xl">{emoji}</span>
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+            {form.constellation_type && (
+              <div className="space-y-2">
+                <input type="text" placeholder="Partner display name (e.g. Me & Alex)" value={form.partner_display || ''}
+                  onChange={e => set('partner_display', e.target.value)}
+                  className="input-base w-full px-4 py-2.5 rounded-2xl border text-sm" />
+                <input type="text" placeholder="What you're seeking together…" value={form.seeking_desc || ''}
+                  onChange={e => set('seeking_desc', e.target.value)}
+                  className="input-base w-full px-4 py-2.5 rounded-2xl border text-sm" />
+              </div>
+            )}
+          </div>
 
           <button type="submit" disabled={saving} className="btn-primary w-full py-3 rounded-2xl">
             {saved ? '✓ Saved!' : saving ? 'Saving…' : 'Save Profile'}

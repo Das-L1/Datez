@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const { requireAuth } = require('../middleware/auth');
+const { awardMessage } = require('../utils/points');
 
 const router = express.Router();
 
@@ -27,7 +28,10 @@ router.post('/:matchId', requireAuth, (req, res) => {
   const { lastInsertRowid } = db.prepare(
     'INSERT INTO messages (match_id, sender_id, content) VALUES (?, ?, ?)'
   ).run(req.params.matchId, req.userId, content.trim());
-  res.json(db.prepare('SELECT * FROM messages WHERE id = ?').get(lastInsertRowid));
+  awardMessage(req.userId);
+  const msg = db.prepare('SELECT * FROM messages WHERE id = ?').get(lastInsertRowid);
+  const { points } = db.prepare('SELECT points FROM users WHERE id = ?').get(req.userId);
+  res.json({ ...msg, sender_points: points });
 });
 
 // Send a tip inside a match

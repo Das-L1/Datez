@@ -4,6 +4,7 @@ import { SwipeCard } from '../components/SwipeCard';
 import { MatchModal } from '../components/MatchModal';
 import { SpicyUnlockModal } from '../components/SpicyUnlockModal';
 import { useSpicy } from '../context/SpicyContext';
+import { useAuth } from '../context/AuthContext';
 
 export function Discover() {
   const [users, setUsers] = useState([]);
@@ -14,6 +15,7 @@ export function Discover() {
   const [unlockMode, setUnlockMode] = useState('unlock');
 
   const { spicyMode, spicyLikes, spicyUnlocked, toggleSpicyMode, useSpicyLike } = useSpicy();
+  const { user } = useAuth();
 
   const load = useCallback(async () => {
     try {
@@ -80,9 +82,17 @@ export function Discover() {
     <div className="flex flex-col h-[calc(100vh-64px)] px-4 pt-4" style={{ background: 'var(--skin-bg)' }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-black heading-gradient">
-          {spicyMode ? '🌶️ Spicy' : 'Datez 💘'}
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-black heading-gradient">
+            {spicyMode ? '🌶️ Spicy' : 'Datez 💘'}
+          </h1>
+          {(user?.points ?? 0) > 0 && (
+            <span className="text-xs font-bold px-2 py-1 rounded-xl"
+              style={{ background: 'var(--skin-fill-2)', color: 'var(--skin-accent)' }}>
+              ⚡ {user.points} pts
+            </span>
+          )}
+        </div>
         <button
           onClick={handleSpicyToggle}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold text-sm border transition-all ${

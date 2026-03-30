@@ -4,6 +4,7 @@ import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { RoleBadge } from '../components/RoleBadge';
 import { useSpicy } from '../context/SpicyContext';
+import { IcebreakerPanel } from '../components/IcebreakerPanel';
 
 const TIP_AMOUNTS = [5, 10, 25, 50, 100, 200];
 
@@ -60,6 +61,7 @@ export function Chat() {
     try {
       const msg = await api.post(`/messages/${matchId}`, { content: text.trim() });
       setMessages(prev => [...prev, msg]);
+      if (msg.sender_points != null) updateUser({ points: msg.sender_points });
       setText('');
     } catch (e) { console.error(e); } finally { setSending(false); }
   }
@@ -117,9 +119,12 @@ export function Chat() {
               style={{ borderColor: 'var(--skin-accent)', borderTopColor: 'transparent' }} />
           </div>
         ) : timeline.length === 0 ? (
-          <div className="text-center py-12" style={{ color: 'var(--skin-muted)' }}>
-            <p className="text-4xl mb-2">👋</p>
-            <p>Say hello to {partner?.name}!</p>
+          <div>
+            <IcebreakerPanel matchId={parseInt(matchId)} onSend={p => setText(p)} />
+            <div className="text-center py-8" style={{ color: 'var(--skin-muted)' }}>
+              <p className="text-4xl mb-2">👋</p>
+              <p>Say hello to {partner?.name}!</p>
+            </div>
           </div>
         ) : (
           timeline.map(item => {
